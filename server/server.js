@@ -82,11 +82,16 @@ app.use("/api/messages", messageRouter);
 // Connect to MongoDB
 await connectDB();
 
-// Set port
-const PORT = process.env.PORT || 5001;
 
-// Start the server
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`JWT_SECRET is ${process.env.JWT_SECRET ? 'configured' : 'NOT configured'}`);
-});
+if (process.env.NODE_ENV === "production") {
+    // Set port
+    const PORT = process.env.PORT || 5001;
+
+    // Start the server
+    server.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+// Export server for Vercel
+export default server;
