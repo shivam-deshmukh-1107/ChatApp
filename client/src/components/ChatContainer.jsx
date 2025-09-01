@@ -1,16 +1,33 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { assets, messagesDummyData } from "../assets/assets";
+import { assets } from "../assets/assets";
 import { formatMessageTime } from "../lib/utils";
 import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
+import ProfileView from "./ProfileView";
+import toast from "react-hot-toast";
 
 const ChatContainer = () => {
-  const { selectedUser, messages, sendMessage, getMessages, setSelectedUser } =
-    useContext(ChatContext);
+  const {
+    selectedUser,
+    messages,
+    sendMessage,
+    getMessages,
+    setSelectedUser,
+    showRightSidebar,
+    setShowRightSidebar,
+  } = useContext(ChatContext);
   const { authUser, onlineUsers } = useContext(AuthContext);
   const scrollEnd = useRef();
 
   const [input, setInput] = useState("");
+
+  // Function to handle name click - only works below 1200px
+  const handleNameClick = () => {
+    if (window.innerWidth < 1200) {
+      // Tailwind 2xl breakpoint is 1200px
+      setShowRightSidebar(true);
+    }
+  };
 
   // Function to send message
   const handleSendMessage = async (e) => {
@@ -49,6 +66,11 @@ const ChatContainer = () => {
     }
   }, [messages]);
 
+  // Show ProfileView only on screens below 1536px (2xl) when showRightSidebar is true
+  if (selectedUser && showRightSidebar && window.innerWidth < 1200) {
+    return <ProfileView />;
+  }
+
   return selectedUser ? (
     <div className="h-full overflow-scroll relative backdrop-blur-lg">
       {/* Header */}
@@ -58,7 +80,14 @@ const ChatContainer = () => {
           alt="Profile_martin"
           className="w-8 rounded-full"
         />
-        <p className="flex-1 text-lg text-white flex items-center gap-2">
+        <p
+          className={`flex-1 text-lg text-white flex items-center gap-2 ${
+            window.innerWidth < 1200
+              ? "cursor-pointer hover:opacity-80 transition-opacity"
+              : ""
+          }`}
+          onClick={handleNameClick}
+        >
           {selectedUser.fullName}
           {onlineUsers.includes(selectedUser._id) && (
             <span className="w-2 h-2 rounded-full bg-green-500"></span>
@@ -68,13 +97,13 @@ const ChatContainer = () => {
           onClick={() => setSelectedUser(null)}
           src={assets.arrow_icon}
           alt="arrow_icon"
-          className="md:hidden max-w-7"
+          className="md:hidden max-w-7 cursor-pointer"
         />
-        <img
+        {/* <img
           src={assets.help_icon}
           alt="help_icon"
           className="max-md:hidden max-w-5"
-        />
+        /> */}
       </div>
       {/* Char Area */}
       <div className="flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-3 pb-6">
@@ -93,7 +122,7 @@ const ChatContainer = () => {
               />
             ) : (
               <p
-                className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white ${
+                className={`p-3 max-w-[70%] md:text-sm font-light rounded-lg mb-8 break-words bg-violet-500/30 text-white ${
                   msg.senderId !== authUser._id
                     ? "rounded-br-none"
                     : "rounded-bl-none"
@@ -102,7 +131,7 @@ const ChatContainer = () => {
                 {msg.text}
               </p>
             )}
-            <div className="text-center text-xs">
+            <div className="text-center text-xs flex-shrink-0">
               <img
                 src={
                   msg.senderId == authUser._id
@@ -129,7 +158,7 @@ const ChatContainer = () => {
             className="flex-1 text-sm p-3 border-none rounded-lg outline-none text-white placeholder:text-gray-400"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => (e.kry === "Enter" ? handleSendMessage(e) : null)}
+            onKeyDown={(e) => (e.key === "Enter" ? handleSendMessage(e) : null)}
           />
           <input
             type="file"
@@ -157,7 +186,7 @@ const ChatContainer = () => {
   ) : (
     <div className="flex flex-col items-center justify-center gap-2 text-gray-500 bg-white/10 max-md:hidden">
       <img src={assets.logo_icon} alt="logo_icon" className="max-w-16" />
-      <p className="text-lg text-white font-medium">Chat anytime, anywhere</p>
+      <p className="text-lg text-white font-medium">Chat anytime, Anywhere!</p>
     </div>
   );
 };

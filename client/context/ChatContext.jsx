@@ -1,3 +1,4 @@
+// ChatContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import toast from "react-hot-toast";
@@ -9,6 +10,7 @@ export const ChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unseenMessages, setUnseenMessages] = useState({});
+  const [showRightSidebar, setShowRightSidebar] = useState(false);
 
 
   const { socket, axios } = useContext(AuthContext);
@@ -99,6 +101,8 @@ export const ChatProvider = ({ children }) => {
     setSelectedUser,
     unseenMessages,
     setUnseenMessages,
+    showRightSidebar,
+    setShowRightSidebar,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
